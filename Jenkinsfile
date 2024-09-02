@@ -1,29 +1,35 @@
 pipeline {
     agent any
+    environment {
+        DOCKER_IMAGE = 'yuvalshaul/my_clock:1'
+    }
     stages { 
-        stage('build') {
+        stage('Build') {
             steps {
-                echo 'build'
-		sh 'echo Build number is: $BUILD_NUMBER.'
-                sh 'docker build . -t yuvalshaul/my_clock:1'
-		sh 'docker login'
-                sh 'docker push yuvalshaul/my_clock:1'
+                echo 'Building...'
+                sh 'echo Build number is: $BUILD_NUMBER'
+                sh 'docker build . -t $DOCKER_IMAGE'
+                withCredentials([usernamePassword(credentialsId: 'docker-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
+                }
+                sh 'docker push $DOCKER_IMAGE'
             }
         }
         stage('Moshe') {
-            when{
-                branch "moshe"
+            when {
+                branch 'moshe'
             }
             steps {
-                echo 'build'
+                echo 'Running Moshe-specific steps...'
             }
         }
-        stage('Deploy'){
-            when{
-                branch "main"
+        stage('Deploy') {
+            when {
+                branch 'main'
             }
-            steps{
-                echo "deploy"
+            steps {
+                echo 'Deploying...'
+                // Add deployment steps here
             }
         }
     }
