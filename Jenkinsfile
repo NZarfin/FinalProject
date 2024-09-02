@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        DOCKER_IMAGE = 'yuvalshaul/my_clock'
+        DOCKER_IMAGE = 'nadavzarfin/my_clock'
     }
     stages { 
         stage('Build') {
